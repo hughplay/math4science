@@ -27,9 +27,9 @@ jobs=[
 ]
 def section(doc,word,from_page):
     n,t=word
-    pat=re.compile(r'(?<![0-9])'+re.escape(n)+r'\\s*'+re.escape(t),re.I)
+    pat=re.compile(r'(?<![0-9])'+re.escape(n)+r'\s*'+re.escape(t),re.I)
     for i in range(from_page,len(doc)):
-        txt=re.sub(r'\\s+',' ',doc[i].get_text(sort=True)[:1300])
+        txt=re.sub(r'\s+',' ',doc[i].get_text(sort=True)[:1300])
         m=pat.search(txt[:650])
         if m and m.start()<400: return i
     raise ValueError('Cannot locate PDF section heading '+str(word))
@@ -66,7 +66,7 @@ def main():
                 print('Extracted',name, b-a,'pages')
             except Exception as e:errors.append(f'{name}: {e}')
         for doc,_,_,_ in docs.values():doc.close()
-    (out/'manifest.json').write_text(json.dumps({'files':manifest,'warnings':errors},ensure_ascii=False,indent=2)+'\\n',encoding='utf-8')
+    (out/'manifest.json').write_text(json.dumps({'files':manifest,'warnings':errors},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print('EXCERPTS',len(manifest),'WARNINGS',errors)
     if not manifest:raise SystemExit('No matching licensed excerpts found')
 if __name__=='__main__': main()
