@@ -63,14 +63,23 @@ def main():
             doc,url,license,min_page=docs[kind]
             try:
                 a=section(doc,start,min_page)
-                b=section(doc,end,a+1) if end else min(len(doc),a+max_pages)
+                bounded=False
+                if end:
+                    try:
+                        b=section(doc,end,a+1)
+                        if not (1<=b-a<=max_pages): raise ValueError('next section too distant')
+                    except ValueError:
+                        b=min(len(doc),a,min(a+8,a+max_pages))
+                        bounded=True
+                else:
+                    b=min(len(doc),a+max_pages)
                 if not (1<=b-a<=max_pages):raise ValueError(f'Implausible length {b-a} starting {a}')
                 clip=fitz.open();clip.insert_pdf(doc,from_page=a,to_page=b-1)
                 path=out/name;path.parent.mkdir(parents=True,exist_ok=True)
                 clip.set_metadata({'title':start[0]+' '+start[1], 'subject':'Excerpt from '+url+'; licensed '+license+'.'})
                 clip.save(path,garbage=4,deflate=True)
                 clip.close()
-                manifest.append({'path':str(path.relative_to(root)),'section':start[0]+' '+start[1],'source_pdf_pages':f'{a+1}-{b}','license':license,'original':url,'bytes':path.stat().st_size})
+                manifest.append({'path':str(path.relative_to(root)),'section':start[0]+' '+start[1],'source_pdf_pages':f'{a+1}-{b}','license':license,'original':url,'bytes':path.stat().st_size,'boundary_note':'First 8 PDF pages from verified section start (next section not found)' if bounded else 'Exact section boundary'})
                 print('Extracted',name, b-a,'pages')
             except Exception as e:errors.append(f'{name}: {e}')
         for doc,_,_,_ in docs.values():doc.close()
