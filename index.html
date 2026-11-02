@@ -239,7 +239,42 @@ const FULL_LESSONS={
  }
 };
 
-function referenceSection(l){const refs=READING_PLAN[l.id]||[];return `<section id="readings" class="lesson-block anchor course-block"><div class="course-section-head"><span class="course-kicker">00 / 先有教材，再有练习</span><h3>这节具体读哪里？</h3><p>只读与当前推导有关的章节。按推荐顺序打开；如果下方内置讲义已能理解，就不用先啃完整本书。</p></div><div class="reading-list">${refs.map((r,i)=>`<a class="reading-item" href="${esc(r[4])}" target="_blank" rel="noopener noreferrer"><div class="reading-num">${String(i+1).padStart(2,'0')}</div><div class="reading-text"><div class="reading-kicker">${esc(r[0])}</div><strong>${esc(r[1])}</strong><div class="reading-chapter">${esc(r[2])}</div><p>${esc(r[3])}</p></div><span class="reading-open">↗</span></a>`).join('')}</div><div class="resource-note">资料说明：教材与论文版权归原作者所有，本网站只提供公开资料链接及独立编写的中文学习笔记；PDF 需要联网打开。</div></section>`}
+
+/* Verified local PDF catalogue: links shown only if the PDF exists in manifest.json. */
+const LOCAL_PDF_MAP={
+ w1l1:['readings/week01/01_partial_derivatives.pdf','readings/week01/02_chain_rule.pdf','readings/week01/03_gradient.pdf'],
+ w1l2:['readings/week01/06_gaussian.pdf'],
+ w1l3:['readings/week01/05_expectation.pdf','readings/week01/07_conditional_expectation.pdf'],
+ w2l2:['readings/week02/01_flow_diffusion.pdf'],
+ w2l3:['readings/week02/01_flow_diffusion.pdf'],
+ w3l1:['readings/week03/01_flow_matching.pdf'],
+ w3l2:['readings/week03/01_flow_matching.pdf'],
+ w3l3:['readings/week03/01_flow_matching.pdf'],
+ w5l1:['readings/week05/01_score_matching.pdf'],
+ w5l2:['readings/week05/01_score_matching.pdf'],
+ w6l1:['readings/week05/01_score_matching.pdf']
+};
+let localPdfManifest={};
+function localPdfWidget(l){
+ const available=(LOCAL_PDF_MAP[l.id]||[]).map(path=>localPdfManifest[path]).filter(Boolean);
+ if(!available.length)return '';
+ return '<div style="margin:12px 0 18px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface)">'
+ +'<strong style="font-size:13px">📄 本仓库精选章节 PDF（已裁剪）</strong>'
+ +'<p style="font-size:11px;color:var(--muted)">仅显示已成功生成的文件；其他教材仍从下方原始链接阅读。</p>'
+ + available.map(m=>'<a style="display:block;margin:8px 0;color:var(--brand)" target="_blank" rel="noopener" href="'+esc(m.path)+'">↗ '+esc(m.section)+' · '+esc(m.source_pdf_pages)+' · '+Math.round(m.bytes/1024)+' KB</a>').join('')
+ +'<small style="color:var(--muted)">保留原 PDF 页和版权署名；来源与许可证见 <a href="readings/README.md" target="_blank">PDF 授权说明</a>。</small></div>'
+}
+async function refreshLocalPdfManifest(){
+ try{
+  const r=await fetch('readings/manifest.json',{cache:'no-cache'});
+  if(!r.ok)return;
+  const m=await r.json();
+  localPdfManifest=Object.fromEntries((m.files||[]).map(x=>[x.path,x]));
+  if(location.hash.includes('lesson'))render();
+ }catch(e){/* local file mode: use official source URLs */ }
+}
+
+function referenceSection(l){const refs=READING_PLAN[l.id]||[];return `<section id="readings" class="lesson-block anchor course-block"><div class="course-section-head"><span class="course-kicker">00 / 先有教材，再有练习</span><h3>这节具体读哪里？</h3><p>只读与当前推导有关的章节。按推荐顺序打开；如果下方内置讲义已能理解，就不用先啃完整本书。</p></div>${localPdfWidget(l)}<div class="reading-list">${refs.map((r,i)=>`<a class="reading-item" href="${esc(r[4])}" target="_blank" rel="noopener noreferrer"><div class="reading-num">${String(i+1).padStart(2,'0')}</div><div class="reading-text"><div class="reading-kicker">${esc(r[0])}</div><strong>${esc(r[1])}</strong><div class="reading-chapter">${esc(r[2])}</div><p>${esc(r[3])}</p></div><span class="reading-open">↗</span></a>`).join('')}</div><div class="resource-note">资料说明：教材与论文版权归原作者所有，本网站只提供公开资料链接及独立编写的中文学习笔记；PDF 需要联网打开。</div></section>`}
 function courseSection(l){const c=FULL_LESSONS[l.id];if(!c)return '';return `<section id="course" class="lesson-block anchor course-block"><div class="course-section-head"><span class="course-kicker">GUIDED READING · 可直接在本站学习</span><h3>中文基础讲义：从定义开始</h3><p>如果定义已经生疏，先读这里，再去完成下方推导。所有符号采用列向量梯度约定；遇到不懂的词先展开概念解释。</p></div><details class="warmup" open><summary>学习前自检：我需要补哪些前置概念？</summary><div class="warmup-inner">${c.readiness.map(t=>`<label><input type="checkbox"> ${esc(t)}</label>`).join('')}<p>不确定就先往下读，不要求一开始全部会。勾选仅用于当页自检，不计入学习进度。</p></div></details>${c.sections.map((s,i)=>`<article class="mini-chapter"><div class="chapter-index">${String(i+1).padStart(2,'0')} / ${esc(s.title)}</div>${s.html}</article>`).join('')}<div class="course-connection">${esc(c.anchor)}</div></section><section id="worked" class="lesson-block anchor course-block"><div class="course-section-head"><span class="course-kicker">WORKED EXAMPLE · 分步推导</span><h3>${esc(c.worked.title)}</h3><p>先自己试着推一遍；只在卡住时逐步展开，最后再合上提示重新写一遍。</p></div><div class="proof-steps">${c.worked.lines.map((s,i)=>`<details class="proof-step" ${i===0?'open':''}><summary><span class="proof-no">${i+1}</span> ${i===0?'题目与对象设置':i===c.worked.lines.length-1?'最终检查与结论':`查看第 ${i+1} 步`}</summary><p>${esc(s)}</p></details>`).join('')}</div><div class="pitfalls"><strong>常见错误与边界</strong><ul>${c.mistakes.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div><div class="course-challenge"><strong>研究者加练 · 改变一个条件</strong><p>${esc(c.challenge)}</p></div></section>`}
 </script><script>const ICONS={home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',map:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 3v18M3 9h18"/>',layers:'<path d="m12 2 9 5-9 5-9-5 9-5Zm-9 10 9 5 9-5M3 17l9 5 9-5"/>',edit:'<path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/>',flask:'<path d="M9 3h6m-5 0v7l-6 9a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-6-9V3M7 16h10"/>',book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.86 1.86-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.5V20h-2.6v-.15a1.65 1.65 0 0 0-1-1.5 1.65 1.65 0 0 0-1.82.33l-.06.06-1.86-1.86.06-.06A1.65 1.65 0 0 0 7.1 15a1.65 1.65 0 0 0-1.5-1H5.5v-2.6h.1a1.65 1.65 0 0 0 1.5-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06L8.57 6.7l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.5V5.5h2.6v.1a1.65 1.65 0 0 0 1 1.5 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.86 1.86-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.5 1h.1V14h-.1a1.65 1.65 0 0 0-1.5 1Z"/>',search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',moon:'<path d="M20.985 12.486a9 9 0 1 1-9.472-9.472c.405-.02.616.478.402.822a6 6 0 0 0 8.248 8.248c.344-.214.842-.003.822.402Z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m17.07-7.07-1.42 1.42M6.35 17.65l-1.42 1.42m14.14 0-1.42-1.42M6.35 6.35 4.93 4.93"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',arrow:'<path d="M5 12h14m-7-7 7 7-7 7"/>',check:'<path d="m5 12 4 4L19 6"/>',external:'<path d="M13 5h6v6m0-6-9 9M19 13v6H5V5h6"/>',download:'<path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',x:'<path d="m18 6-12 12M6 6l12 12"/>'};
 function icon(key,size=18){return `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]||ICONS.arrow}</svg>`}
@@ -297,5 +332,5 @@ document.addEventListener('change',async e=>{if(e.target.dataset.complete){state
 document.addEventListener('input',e=>{if(e.target.dataset.visTime!==undefined){visT=Number(e.target.value)/100;const o=visMode==='flow'?flowSvg():geoSvg();document.querySelector('.visual-stage').innerHTML=o.svg;document.querySelector('#vis-time-label').textContent=visT.toFixed(2);document.querySelector('#vis-metric-1').textContent=o.metric1;document.querySelector('#vis-metric-2').textContent=o.metric2;return}const n=e.target.dataset.note,d=e.target.dataset.derive;if(n){state.notes[n]=e.target.value;save()}if(d){state.derivations[d.id||d]=e.target.value;save()}});
 document.querySelector('#theme-btn').addEventListener('click',()=>{state.dark=!state.dark;save();render()});document.querySelector('#menu-btn').addEventListener('click',()=>document.body.classList.toggle('nav-open'));document.querySelector('#shade').addEventListener('click',()=>document.body.classList.remove('nav-open'));
 const search=document.querySelector('#search'),results=document.querySelector('#search-results');search.addEventListener('input',()=>{const q=search.value.trim().toLowerCase();currentQuery=q;if(!q){results.classList.remove('open');results.innerHTML='';return}const matches=LESSONS.filter(l=>[l.name,l.weekLabel,l.intro,l.tags.join(' ')].join(' ').toLowerCase().includes(q)).slice(0,9);results.innerHTML=matches.length?matches.map(l=>`<button class="search-result" data-go="lesson/${l.id}"><strong>${esc(l.name)}</strong><small>W${l.week} · ${esc(l.weekLabel)}</small></button>`).join(''):'<div class="empty">没有匹配的知识单元</div>';results.classList.add('open')});search.addEventListener('keydown',e=>{if(e.key==='Escape'){search.value='';results.classList.remove('open')}else if(e.key==='Enter'){const first=results.querySelector('[data-go]');if(first)first.click()}});document.addEventListener('click',e=>{if(!e.target.closest('.search-box'))results.classList.remove('open');if(e.target.closest('.search-result')){search.value='';results.classList.remove('open')}});
-window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});render();
+window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0)});render();refreshLocalPdfManifest();
 </script></body></html>
