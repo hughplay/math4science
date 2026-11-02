@@ -28,3 +28,4 @@ jobs:
             git commit -m 'Add licensed short PDFs for course readings'
             git push
           fi
+# Rebuild after source URL fallback update.
