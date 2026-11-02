@@ -10,6 +10,15 @@
       "boundary_note": "Exact section boundary"
     },
     {
+      "path": "readings/week01/05_expectation.pdf",
+      "section": "4.1 Probability Distribution Function",
+      "source_pdf_pages": "277-284",
+      "license": "CC BY 4.0",
+      "original": "https://raw.githubusercontent.com/RachaelDavou/Multi-Agent-AI-Academic-Assistant/main/data/course_catalogue/Introductory%20Statistics%202e.pdf",
+      "bytes": 69259,
+      "boundary_note": "First 8 PDF pages from verified section start (next section not found)"
+    },
+    {
       "path": "readings/week01/07_conditional_expectation.pdf",
       "section": "A.2 Conditional densities and expectations",
       "source_pdf_pages": "71-74",
@@ -47,10 +56,9 @@
     }
   ],
   "warnings": [
-    "week01/01_partial_derivatives.pdf: Implausible length 0 starting 341",
-    "week01/02_chain_rule.pdf: Implausible length 0 starting 341",
-    "week01/03_gradient.pdf: Implausible length 0 starting 341",
-    "week01/05_expectation.pdf: Implausible length 0 starting 276",
-    "week01/06_gaussian.pdf: Implausible length 0 starting 368"
+    "week01/01_partial_derivatives.pdf: Cannot locate PDF section heading ('4.3', 'Partial Derivatives')",
+    "week01/02_chain_rule.pdf: Cannot locate PDF section heading ('4.5', 'The Chain Rule')",
+    "week01/03_gradient.pdf: Cannot locate PDF section heading ('4.6', 'Directional Derivatives')",
+    "week01/06_gaussian.pdf: Cannot locate PDF section heading ('6.1', 'The Standard Normal Distribution')"
   ]
 }
