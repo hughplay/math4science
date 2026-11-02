@@ -285,6 +285,7 @@ function officialPdfWidget(l){
  for(const ref of sources){
    const url=OFFICIAL_PDFS[ref[4]];
    if(url)add(ref[1],ref[2],url,'作者 / 学校官方完整 PDF');
+   if(ref[4]===SOURCE.geometry)add('Geometric Deep Learning · proto-book','群作用、等变性和几何建模的经典综述','https://arxiv.org/pdf/2104.13478','arXiv 官方 PDF');
    if(ref[4]===SOURCE.geometry)add(
      'Mathematical Foundations of Geometric Deep Learning',
      '对称性、群与微分几何；补充论文，不是 GDL 教材本身的 PDF',
