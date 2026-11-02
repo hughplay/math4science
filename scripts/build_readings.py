@@ -8,9 +8,9 @@ root=Path(__file__).resolve().parents[1]
 out=root/'readings'
 out.mkdir(exist_ok=True)
 sources={
- 'mit':('https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf','Holderrieth','CC BY-NC-SA',8),
- 'calc':('https://assets.openstax.org/oscms-prodcms/media/documents/Calculus_Volume_3_-_WEB.pdf','OpenStax','CC BY-NC-SA 4.0',30),
- 'stat':('https://assets.openstax.org/oscms-prodcms/media/documents/Introductory_Statistics_2e_-_WEB.pdf','OpenStax','CC BY 4.0',30),
+ 'mit':('https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf','Holderrieth','CC BY-NC-SA',4),
+ 'calc':(['https://d3bxy9euw4e147.cloudfront.net/oscms-prodcms/media/documents/CalculusVolume3-LR.pdf','https://raw.githubusercontent.com/librescholar/open-textbooks/main/Calculus3_openstax_2.pdf','https://assets.openstax.org/oscms-prodcms/media/documents/Calculus_Volume_3_-_WEB.pdf'],'OpenStax','CC BY-NC-SA 4.0',30),
+ 'stat':(['https://raw.githubusercontent.com/RachaelDavou/Multi-Agent-AI-Academic-Assistant/main/data/course_catalogue/Introductory%20Statistics%202e.pdf','https://assets.openstax.org/oscms-prodcms/media/documents/Introductory_Statistics_2e_-_WEB.pdf'],'OpenStax','CC BY 4.0',30),
 }
 # file, source, start heading, first following heading, maximum excerpt pages.
 jobs=[
@@ -39,9 +39,17 @@ def main():
         docs={}
         for kind,(url,guard,license,min_page) in sources.items():
             try:
-                r=requests.get(url,timeout=120,headers={'User-Agent':'Mozilla/5.0'})
-                r.raise_for_status()
-                if not r.content.startswith(b'%PDF-'): raise ValueError('Source response is not a PDF')
+                attempts=[]
+                for candidate in (url if isinstance(url,list) else [url]):
+                    try:
+                        r=requests.get(candidate,timeout=150,headers={'User-Agent':'Mozilla/5.0'})
+                        r.raise_for_status()
+                        if not r.content.startswith(b'%PDF-'):raise ValueError('Not a PDF')
+                        url=candidate
+                        break
+                    except Exception as exc:
+                        attempts.append(str(exc))
+                else:raise ValueError('All source URLs failed: '+'; '.join(attempts))
                 path=Path(tmp)/(kind+'.pdf');path.write_bytes(r.content)
                 doc=fitz.open(path)
                 if len(doc)<65: raise ValueError('Suspicious short PDF')
