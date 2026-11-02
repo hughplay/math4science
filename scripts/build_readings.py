@@ -31,7 +31,12 @@ def section(doc,word,from_page):
     for i in range(from_page,len(doc)):
         txt=re.sub(r'\s+',' ',doc[i].get_text(sort=True)[:1300])
         m=pat.search(txt[:650])
-        if m and m.start()<400: return i
+        if m and m.start()<400:
+            # Skip chapter opener/contents pages listing many section numbers.
+            chapter=n.split('.')[0]
+            listed=set(re.findall(r'(?<![0-9])'+re.escape(chapter)+r'\.[0-9]+',txt[:950]))
+            if len(listed)>=3: continue
+            return i
     raise ValueError('Cannot locate PDF section heading '+str(word))
 def main():
     manifest=[];errors=[]
@@ -69,7 +74,7 @@ def main():
                         b=section(doc,end,a+1)
                         if not (1<=b-a<=max_pages): raise ValueError('next section too distant')
                     except ValueError:
-                        b=min(len(doc),a,min(a+8,a+max_pages))
+                        b=min(len(doc),a+8,a+max_pages)
                         bounded=True
                 else:
                     b=min(len(doc),a+max_pages)
