@@ -1,6 +1,33 @@
 {
   "files": [
     {
+      "path": "readings/week01/01_partial_derivatives.pdf",
+      "section": "4.3 Partial Derivatives",
+      "source_pdf_pages": "377-384",
+      "license": "CC BY-NC-SA 4.0",
+      "original": "https://d3bxy9euw4e147.cloudfront.net/oscms-prodcms/media/documents/CalculusVolume3-LR.pdf",
+      "bytes": 228331,
+      "boundary_note": "First 8 PDF pages from verified section start (next section not found)"
+    },
+    {
+      "path": "readings/week01/02_chain_rule.pdf",
+      "section": "4.5 The Chain Rule",
+      "source_pdf_pages": "414-421",
+      "license": "CC BY-NC-SA 4.0",
+      "original": "https://d3bxy9euw4e147.cloudfront.net/oscms-prodcms/media/documents/CalculusVolume3-LR.pdf",
+      "bytes": 210292,
+      "boundary_note": "First 8 PDF pages from verified section start (next section not found)"
+    },
+    {
+      "path": "readings/week01/03_gradient.pdf",
+      "section": "4.6 Directional Derivatives",
+      "source_pdf_pages": "430-445",
+      "license": "CC BY-NC-SA 4.0",
+      "original": "https://d3bxy9euw4e147.cloudfront.net/oscms-prodcms/media/documents/CalculusVolume3-LR.pdf",
+      "bytes": 398142,
+      "boundary_note": "Exact section boundary"
+    },
+    {
       "path": "readings/week01/04_probability.pdf",
       "section": "3.1 Terminology",
       "source_pdf_pages": "218-223",
@@ -56,9 +83,6 @@
     }
   ],
   "warnings": [
-    "week01/01_partial_derivatives.pdf: Cannot locate PDF section heading ('4.3', 'Partial Derivatives')",
-    "week01/02_chain_rule.pdf: Cannot locate PDF section heading ('4.5', 'The Chain Rule')",
-    "week01/03_gradient.pdf: Cannot locate PDF section heading ('4.6', 'Directional Derivatives')",
     "week01/06_gaussian.pdf: Cannot locate PDF section heading ('6.1', 'The Standard Normal Distribution')"
   ]
 }
