@@ -1,0 +1,33 @@
+{
+  "files": [
+    {
+      "path": "readings/week01/07_conditional_expectation.pdf",
+      "section": "A.2 Conditional densities and expectations",
+      "source_pdf_pages": "71-74",
+      "license": "CC BY-NC-SA",
+      "original": "https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf",
+      "bytes": 371966
+    },
+    {
+      "path": "readings/week03/01_flow_matching.pdf",
+      "section": "3 Flow Matching",
+      "source_pdf_pages": "14-24",
+      "license": "CC BY-NC-SA",
+      "original": "https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf",
+      "bytes": 3175352
+    },
+    {
+      "path": "readings/week05/01_score_matching.pdf",
+      "section": "4 Score Functions and Score Matching",
+      "source_pdf_pages": "25-33",
+      "license": "CC BY-NC-SA",
+      "original": "https://diffusion.csail.mit.edu/2026/docs/lecture_notes.pdf",
+      "bytes": 3115217
+    }
+  ],
+  "warnings": [
+    "calc source: 403 Client Error: Forbidden for url: https://assets.openstax.org/oscms-prodcms/media/documents/Calculus_Volume_3_-_WEB.pdf",
+    "stat source: 403 Client Error: Forbidden for url: https://assets.openstax.org/oscms-prodcms/media/documents/Introductory_Statistics_2e_-_WEB.pdf",
+    "week02/01_flow_diffusion.pdf: Cannot locate PDF section heading ('2', 'Flow and Diffusion Models')"
+  ]
+}
