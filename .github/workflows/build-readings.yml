@@ -5,6 +5,9 @@ on:
     paths:
       - 'scripts/build_readings.py'
       - '.github/workflows/build-readings.yml'
+concurrency:
+  group: build-licensed-readings
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
@@ -26,6 +29,8 @@ jobs:
           git add readings/
           if ! git diff --cached --quiet; then
             git commit -m 'Add licensed short PDFs for course readings'
-            git push
+            git fetch origin main
+            git rebase origin/main
+            git push origin HEAD:main
           fi
 # Rebuild after source URL fallback update.
