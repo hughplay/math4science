@@ -264,6 +264,44 @@ function localPdfWidget(l){
  + available.map(m=>'<a style="display:block;margin:8px 0;color:var(--brand)" target="_blank" rel="noopener" href="'+esc(m.path)+'">↗ '+esc(m.section)+' · '+esc(m.source_pdf_pages)+' · '+Math.round(m.bytes/1024)+' KB</a>').join('')
  +'<small style="color:var(--muted)">保留原 PDF 页和版权署名；来源与许可证见 <a href="readings/README.md" target="_blank">PDF 授权说明</a>。</small></div>'
 }
+
+/* Official PDF links complement, rather than replace, legally shareable local excerpts. */
+const OFFICIAL_PDFS={
+ [SOURCE.mml]:'https://mml-book.github.io/book/mml-book.pdf',
+ [SOURCE.mit]:'https://diffusion.csail.mit.edu/docs/lecture-notes.pdf',
+ [SOURCE.stanford]:SOURCE.stanford,
+ [SOURCE.fm]:'https://arxiv.org/pdf/2412.06264',
+ [SOURCE.score]:'https://arxiv.org/pdf/2011.13456',
+ [SOURCE.ot]:'https://optimaltransport.github.io/pdf/ComputationalOT.pdf',
+ [SOURCE.manifold]:'https://arxiv.org/pdf/2302.03660',
+ [SOURCE.foldflow]:'https://arxiv.org/pdf/2310.02391'
+};
+function officialPdfWidget(l){
+ const sources=READING_PLAN[l.id]||[],list=[],visited=new Set();
+ function add(title,chapter,url,type){
+   if(!url||visited.has(url))return;
+   visited.add(url);list.push({title,chapter,url,type});
+ }
+ for(const ref of sources){
+   const url=OFFICIAL_PDFS[ref[4]];
+   if(url)add(ref[1],ref[2],url,'作者 / 学校官方完整 PDF');
+   if(ref[4]===SOURCE.geometry)add(
+     'Mathematical Foundations of Geometric Deep Learning',
+     '对称性、群与微分几何；补充论文，不是 GDL 教材本身的 PDF',
+     'https://arxiv.org/pdf/2508.02723','arXiv 官方 PDF');
+ }
+ if(l.id==='w1l1')add('Stanford CS229 · Linear Algebra Review','矩阵、转置与微积分常用符号','https://cs229.stanford.edu/lectures-spring2022/cs229-linear_algebra_review.pdf','Stanford 官方 PDF');
+ if(l.id==='w1l2'||l.id==='w1l3')add('Stanford CS229 · Probability Review','随机变量、期望、条件概率和高斯分布','https://cs229.stanford.edu/lectures-spring2022/cs229-probability_review.pdf','Stanford 官方 PDF');
+ if(!list.length)return '';
+ return '<div style="margin:12px 0 18px;padding:14px;border-radius:12px;border:1px solid var(--line);background:var(--surface)">'
+ +'<strong style="font-size:13px">📚 官方完整 PDF · 不需裁剪的高质量参考</strong>'
+ +'<p style="font-size:11px;color:var(--muted)">直接打开作者、学校或 arXiv 提供的 PDF，不将未经允许的原文复制到本仓库；按所示章节阅读即可。</p>'
+ +list.map(x=>'<div style="margin:9px 0 0;padding-top:8px;border-top:1px solid var(--line)">'
+  +'<a href="'+esc(x.url)+'" target="_blank" rel="noopener noreferrer" style="color:var(--brand);font-size:13px;font-weight:650">↗ '+esc(x.title)+'</a>'
+  +'<div style="font-size:11px;color:var(--muted);margin-top:3px">'+esc(x.type)+' · '+esc(x.chapter)+'</div></div>').join('')
+ +'</div>';
+}
+
 async function refreshLocalPdfManifest(){
  try{
   const r=await fetch('readings/manifest.json',{cache:'no-cache'});
@@ -274,7 +312,7 @@ async function refreshLocalPdfManifest(){
  }catch(e){/* local file mode: use official source URLs */ }
 }
 
-function referenceSection(l){const refs=READING_PLAN[l.id]||[];return `<section id="readings" class="lesson-block anchor course-block"><div class="course-section-head"><span class="course-kicker">00 / 先有教材，再有练习</span><h3>这节具体读哪里？</h3><p>只读与当前推导有关的章节。按推荐顺序打开；如果下方内置讲义已能理解，就不用先啃完整本书。</p></div>${localPdfWidget(l)}<div class="reading-list">${refs.map((r,i)=>`<a class="reading-item" href="${esc(r[4])}" target="_blank" rel="noopener noreferrer"><div class="reading-num">${String(i+1).padStart(2,'0')}</div><div class="reading-text"><div class="reading-kicker">${esc(r[0])}</div><strong>${esc(r[1])}</strong><div class="reading-chapter">${esc(r[2])}</div><p>${esc(r[3])}</p></div><span class="reading-open">↗</span></a>`).join('')}</div><div class="resource-note">资料说明：教材与论文版权归原作者所有，本网站只提供公开资料链接及独立编写的中文学习笔记；PDF 需要联网打开。</div></section>`}
+function referenceSection(l){const refs=READING_PLAN[l.id]||[];return `<section id="readings" class="lesson-block anchor course-block"><div class="course-section-head"><span class="course-kicker">00 / 先有教材，再有练习</span><h3>这节具体读哪里？</h3><p>只读与当前推导有关的章节。按推荐顺序打开；如果下方内置讲义已能理解，就不用先啃完整本书。</p></div>${localPdfWidget(l)}${officialPdfWidget(l)}<div class="reading-list">${refs.map((r,i)=>`<a class="reading-item" href="${esc(r[4])}" target="_blank" rel="noopener noreferrer"><div class="reading-num">${String(i+1).padStart(2,'0')}</div><div class="reading-text"><div class="reading-kicker">${esc(r[0])}</div><strong>${esc(r[1])}</strong><div class="reading-chapter">${esc(r[2])}</div><p>${esc(r[3])}</p></div><span class="reading-open">↗</span></a>`).join('')}</div><div class="resource-note">资料说明：仓库内只存放允许再分发的节选；其余高质量 PDF 提供官方地址，不复制原文。打开官方 PDF 需要联网。</div></section>`}
 function courseSection(l){const c=FULL_LESSONS[l.id];if(!c)return '';return `<section id="course" class="lesson-block anchor course-block"><div class="course-section-head"><span class="course-kicker">GUIDED READING · 可直接在本站学习</span><h3>中文基础讲义：从定义开始</h3><p>如果定义已经生疏，先读这里，再去完成下方推导。所有符号采用列向量梯度约定；遇到不懂的词先展开概念解释。</p></div><details class="warmup" open><summary>学习前自检：我需要补哪些前置概念？</summary><div class="warmup-inner">${c.readiness.map(t=>`<label><input type="checkbox"> ${esc(t)}</label>`).join('')}<p>不确定就先往下读，不要求一开始全部会。勾选仅用于当页自检，不计入学习进度。</p></div></details>${c.sections.map((s,i)=>`<article class="mini-chapter"><div class="chapter-index">${String(i+1).padStart(2,'0')} / ${esc(s.title)}</div>${s.html}</article>`).join('')}<div class="course-connection">${esc(c.anchor)}</div></section><section id="worked" class="lesson-block anchor course-block"><div class="course-section-head"><span class="course-kicker">WORKED EXAMPLE · 分步推导</span><h3>${esc(c.worked.title)}</h3><p>先自己试着推一遍；只在卡住时逐步展开，最后再合上提示重新写一遍。</p></div><div class="proof-steps">${c.worked.lines.map((s,i)=>`<details class="proof-step" ${i===0?'open':''}><summary><span class="proof-no">${i+1}</span> ${i===0?'题目与对象设置':i===c.worked.lines.length-1?'最终检查与结论':`查看第 ${i+1} 步`}</summary><p>${esc(s)}</p></details>`).join('')}</div><div class="pitfalls"><strong>常见错误与边界</strong><ul>${c.mistakes.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div><div class="course-challenge"><strong>研究者加练 · 改变一个条件</strong><p>${esc(c.challenge)}</p></div></section>`}
 </script><script>const ICONS={home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',map:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 3v18M3 9h18"/>',layers:'<path d="m12 2 9 5-9 5-9-5 9-5Zm-9 10 9 5 9-5M3 17l9 5 9-5"/>',edit:'<path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L9 17l-4 1 1-4Z"/>',flask:'<path d="M9 3h6m-5 0v7l-6 9a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-6-9V3M7 16h10"/>',book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.86 1.86-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.5V20h-2.6v-.15a1.65 1.65 0 0 0-1-1.5 1.65 1.65 0 0 0-1.82.33l-.06.06-1.86-1.86.06-.06A1.65 1.65 0 0 0 7.1 15a1.65 1.65 0 0 0-1.5-1H5.5v-2.6h.1a1.65 1.65 0 0 0 1.5-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06L8.57 6.7l.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.5V5.5h2.6v.1a1.65 1.65 0 0 0 1 1.5 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.86 1.86-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.5 1h.1V14h-.1a1.65 1.65 0 0 0-1.5 1Z"/>',search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',moon:'<path d="M20.985 12.486a9 9 0 1 1-9.472-9.472c.405-.02.616.478.402.822a6 6 0 0 0 8.248 8.248c.344-.214.842-.003.822.402Z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2m10-10h-2M4 12H2m17.07-7.07-1.42 1.42M6.35 17.65l-1.42 1.42m14.14 0-1.42-1.42M6.35 6.35 4.93 4.93"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',arrow:'<path d="M5 12h14m-7-7 7 7-7 7"/>',check:'<path d="m5 12 4 4L19 6"/>',external:'<path d="M13 5h6v6m0-6-9 9M19 13v6H5V5h6"/>',download:'<path d="M12 3v12m-4-4 4 4 4-4M4 17v4h16v-4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',x:'<path d="m18 6-12 12M6 6l12 12"/>'};
 function icon(key,size=18){return `<svg aria-hidden="true" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]||ICONS.arrow}</svg>`}
