@@ -27,6 +27,11 @@ jobs=[
 ]
 def section(doc,word,from_page):
     n,t=word
+    # Prefer embedded PDF outlines where available.
+    for level,label,page in doc.get_toc():
+        clean=re.sub(r'\s+',' ',label).strip().lower()
+        if re.search(r'(?<![0-9])'+re.escape(n)+r'\b',clean) and t.lower() in clean and page-1>=from_page:
+            return page-1
     pat=re.compile(r'(?<![0-9])'+re.escape(n)+r'\s*'+re.escape(t),re.I)
     for i in range(from_page,len(doc)):
         txt=re.sub(r'\s+',' ',doc[i].get_text(sort=True)[:1300])
